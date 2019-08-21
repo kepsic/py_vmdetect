@@ -4,7 +4,7 @@ CC            = g++
 CFLAGS        = -fPIC -Wall
 PACKAGE       = py_vmdetect
 VMDETECTBASE = ./$(PACKAGE)/src
-VENVDIR       = .venv
+VENVDIR       = ~/.venv
 BINDIR        = $(VENVDIR)/bin
 
 
