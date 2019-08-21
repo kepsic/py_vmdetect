@@ -1,11 +1,15 @@
 language: python
 python:
-  - "3.5"
-  - "3.6"      # current detault Python on Travis CI
-# command to install dependencies
+- '3.5'
+- '3.6'
 install:
-  - pip install -r requirements_dev.txt
-  - python setup.py develop
-# command to run tests
+- pip install -r requirements_dev.txt
+- python setup.py develop
 script:
-  - make test
+- make test
+deploy:
+  provider: pypi
+  user: kepsic
+  password:
+    secure: gqUJ8EFGOIOrZmc59N0vE8mUitLKHhXXHS7aNK/mTOLeJHL3/mtnlaRbbirD7idC5CSrpiOpWibW6hCmzZ+XfnHI+HNka8cExYJttlGLiucqaSQ6J/rC/Z274IBpWOIGKXLiXDBrl2oyJJfkpIWAKaFKwumS74iB/fZ6erfvUUb0j3dgj5bCiNKJK6pfQ+wdfbV9EG18qMJatraR6kgbj9D22b8du33BLM+7RneR4RJuPBJNqAmBSXyzqQcgGsAOQKca2KbmBp2kWqOzjyR3w2jRBgk0FdBZxmZZj9nwxTf8Ph5L7UDkCcRYKZ6FN/QQE6f8Wu5GBiofdK53yej5o0dvkRPkoJ+aFw+f65qu0U9HpBjeDwr4h1NHR8deU0S/OzBA/Pze+Acg3AMYGoXh6Az7h5vxYUhgOPJqQjXF6qX1ozFY4Vfe19MA4G0Br/bkpQ7aqPd/pdACwmgCoeTgHDcOJrNQZ/9SPKhzOS4kK+SxpYYvIRnBA5tIh3IMMivMpH814tWFqrRnF3A/0Y1aD29OcHziL1/wS3L2eYO3kmIAiW4Jih0rIn7UycIEOXRHI8QLbzKVVHQtutbYmbSy26lfBOqx7RuYEHOS5+ljIaw595yvzq7AuPU9s21PESp51Fb2UmSdzz1Q2Oi/WzgQrg9FO/Eqc62k7MpIUfIqG5E=
+  branch: master
