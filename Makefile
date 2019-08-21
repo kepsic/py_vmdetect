@@ -108,8 +108,8 @@ dist: binary clean ## builds source and wheel package
 
 develop: binary
 	python3 -m venv $(VENVDIR)
-	test $(VENVDIR) && $(VENVDIR)/bin/pip install -r requirements_dev.txt
-	$(BINDIR)/python setup.py develop
+	pip install -r requirements_dev.txt
+	python setup.py develop
 
 install: binary clean ## install the package to the active Python's site-packages
 	$(BINDIR)/python setup.py install
