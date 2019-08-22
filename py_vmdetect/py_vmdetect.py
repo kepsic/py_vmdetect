@@ -1,7 +1,13 @@
 # -*- coding: utf-8 -*-
-import importlib.util
 import os.path
+import sys
 from cffi import FFI
+major, minor = sys.version_info[0], sys.version_info[1]
+if major > 3 and minor > 3:
+    import importlib.util
+else:
+    import imp
+
 
 
 class VMDetect():
@@ -26,7 +32,11 @@ class VMDetect():
                   ")
         path_string = os.path.dirname(os.path.realpath(__file__)) + "/_vmdetect_backend.so"
         if not os.path.isfile(path_string):
-            path_string = importlib.util.find_spec('_vmdetect_backend').origin
+            if major > 3 and minor >= 4:
+                path_string = importlib.util.find_spec('_vmdetect_backend').origin
+            else:
+                path_string = imp.find_module('_vmdetect_backend')[-2]
+
         self.vmdetect  = ffi.dlopen(path_string)
 
     def vm_provider_id(self):

@@ -27,8 +27,48 @@ setup_requirements = [ ]
 
 test_requirements = [ ]
 
+no_compiler_found = False
+def no_working_compiler_found():
+    sys.stderr.write("""
+    No working compiler found, or bogus compiler options passed to
+    the compiler from Python's standard "distutils" module.  See
+    the error messages above.  Likely, the problem is not related
+    to CFFI but generic to the setup.py of any Python package that
+    tries to compile C code.  (Hints: on OS/X 10.8, for errors about
+    -mno-fused-madd see http://stackoverflow.com/questions/22313407/
+    Otherwise, see https://wiki.python.org/moin/CompLangPython or
+    the IRC channel #python on irc.freenode.net.)
+
+    Trying to continue anyway.  If you are trying to install CFFI from
+    a build done in a different context, you can ignore this warning.
+    \n""")
+    global no_compiler_found
+    no_compiler_found = True
+
+def get_config():
+    from distutils.core import Distribution
+    from distutils.sysconfig import get_config_vars
+    get_config_vars()      # workaround for a bug of distutils, e.g. on OS/X
+    config = Distribution().get_command_obj('config')
+    return config
+
+def test_copiler():
+    config = get_config()
+    ok1 = config.try_compile('int some_regular_variable_42;')
+    if not ok1:
+        no_working_compiler_found()
+
+def _safe_to_ignore():
+    sys.stderr.write("***** The above error message can be safely ignored.\n\n")
+
+
+if 'freebsd' in sys.platform:
+    include_dirs.append('/usr/local/include')
+    library_dirs.append('/usr/local/lib')
+
 if __name__ == '__main__':
     from setuptools import setup, Distribution, Extension, find_packages
+    test_copiler()
 
 
     class VMDetectDistribution(Distribution):
@@ -38,21 +78,6 @@ if __name__ == '__main__':
             # specific.  (thanks dstufft!)
             return True
 
-    class VMDetectExtension(Extension):
-        def __init__(self, name, sources, *args, **kw):
-            os.environ["CC"] = "g++"
-            os.environ["CXX"] = "g++"
-            if 'freebsd' in sys.platform:
-                include_dirs.append('/usr/local/include')
-                library_dirs.append('/usr/local/lib')
-
-            if 'darwin' in sys.platform:
-                os.environ["CFLAGS"] = "-stdlib=libc++ -mmacosx-version-min=10.12"
-                os.environ["LDSHARED"] = ""
-
-            Extension.__init__(self, name, sources, *args, **kw)
-
-
     setup(
         author="Andres Kepler",
         author_email='andres@kepler.ee',
@@ -61,6 +86,7 @@ if __name__ == '__main__':
             'Intended Audience :: Developers',
             'License :: OSI Approved :: MIT License',
             'Natural Language :: English',
+            'Programming Language :: Python :: 2.7',
             'Programming Language :: Python :: 3.6',
             'Programming Language :: Python :: 3.7',
         ],
@@ -84,7 +110,7 @@ if __name__ == '__main__':
         version='0.1.4',
         zip_safe=False,
         distclass=VMDetectDistribution,
-        ext_modules=[VMDetectExtension(
+        ext_modules=[Extension(
                 name='_vmdetect_backend',
                 include_dirs=include_dirs,
                 sources=sources,
