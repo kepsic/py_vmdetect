@@ -27,9 +27,6 @@ setup_requirements = [ ]
 
 test_requirements = [ ]
 
-os.environ["CFLAGS"] = "-stdlib=libc++ -mmacosx-version-min=10.12"
-
-
 if __name__ == '__main__':
     from setuptools import setup, Distribution, Extension, find_packages
 
@@ -44,8 +41,8 @@ if __name__ == '__main__':
     class VMDetectExtension(Extension):
         def __init__(self, name, sources, *args, **kw):
             os.environ["CC"] = "g++"
-            os.environ["CXX"] = "g++" \
-                                ""
+            os.environ["CXX"] = "g++"
+
             if 'freebsd' in sys.platform:
                 include_dirs.append('/usr/local/include')
                 library_dirs.append('/usr/local/lib')
