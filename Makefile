@@ -2,13 +2,15 @@
 .DEFAULT_GOAL := help
 CC            = g++
 CFLAGS        = -fPIC -Wall
+LOCATION      = $(shell pwd)
 PACKAGE       = py_vmdetect
 VMDETECTBASE = ./$(PACKAGE)/src
-VENVDIR       = ~/.venv
+VENVDIR       = $(LOCATION)/.venv
 BINDIR        = $(VENVDIR)/bin
 
 
-binary: vmdetect.so
+binary:
+	python setup.py build_ext
 
 vmdetect.so: vmdetect.o
 	$(CC) $(CFLAGS) -shared -o ./$(PACKAGE)/vmdetect.so *.o
@@ -102,14 +104,15 @@ release: dist ## package and upload a release
 	$(BINDIR)/twine upload dist/*
 
 dist: binary clean ## builds source and wheel package
-	$(BINDIR)/python setup.py sdist
-	$(BINDIR)/python setup.py bdist_wheel
+	pip install -r requirements_dev.txt
+	python setup.py sdist
+	python setup.py bdist_wheel
 	ls -l dist
 
 develop: binary
 	python3 -m venv $(VENVDIR)
-	pip install -r requirements_dev.txt
-	python setup.py develop
+	$(BINDIR)/pip install -r requirements_dev.txt
+	$(BINDIR)/python setup.py develop
 
 install: binary clean ## install the package to the active Python's site-packages
-	$(BINDIR)/python setup.py install
+	python setup.py install
