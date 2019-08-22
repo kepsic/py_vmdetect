@@ -113,7 +113,7 @@ dist: binary clean ## builds source and wheel package
 
 develop: binary
 	( \
-	python3 -m venv $(VENVDIR); \
+	python -m venv $(VENVDIR); \
 	source $(VENVDIR)/bin/activate; \
 	pip install -r requirements_dev.txt; \
 	python setup.py develop; \
