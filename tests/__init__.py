@@ -4,6 +4,7 @@
 import unittest
 import tests.test_py_vmdetect
 
+
 def my_module_suite():
     loader = unittest.TestLoader()
     suite = loader.loadTestsFromModule(tests.test_py_vmdetect)
