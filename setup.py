@@ -42,7 +42,6 @@ if __name__ == '__main__':
         def __init__(self, name, sources, *args, **kw):
             os.environ["CC"] = "g++"
             os.environ["CXX"] = "g++"
-
             if 'freebsd' in sys.platform:
                 include_dirs.append('/usr/local/include')
                 library_dirs.append('/usr/local/lib')

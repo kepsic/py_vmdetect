@@ -1,5 +1,7 @@
 .PHONY: clean clean-test clean-pyc clean-build docs help
 .DEFAULT_GOAL := help
+.ONESHELL:
+
 CC            = g++
 CFLAGS        = -fPIC -Wall
 LOCATION      = $(shell pwd)
@@ -9,7 +11,7 @@ VENVDIR       = $(LOCATION)/.venv
 BINDIR        = $(VENVDIR)/bin
 
 
-binary:
+binary: vmdetect.so
 	python setup.py build_ext
 
 vmdetect.so: vmdetect.o
@@ -110,9 +112,12 @@ dist: binary clean ## builds source and wheel package
 	ls -l dist
 
 develop: binary
-	python3 -m venv $(VENVDIR)
-	pip install -r requirements_dev.txt
-	python setup.py develop
+	( \
+	python3 -m venv $(VENVDIR); \
+	source $(VENVDIR)/bin/activate; \
+	pip install -r requirements_dev.txt; \
+	python setup.py develop; \
+	)
 
 install: binary clean ## install the package to the active Python's site-packages
 	python setup.py install
