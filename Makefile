@@ -11,17 +11,6 @@ VENVDIR       = $(LOCATION)/.venv
 BINDIR        = $(VENVDIR)/bin
 
 
-binary: vmdetect.so
-	python setup.py build_ext
-
-vmdetect.so: _vmdetect_backend.o
-	$(CC) $(CFLAGS) -shared -o ./$(PACKAGE)/_vmdetect_backend.so *.o
-	find . -name '*.o' -exec rm -f {} +
-
-_vmdetect_backend.o: $(VMDETECTBASE)/vmdetect.cpp
-	$(CC) $(CFLAGS) -c $(VMDETECTBASE)/vmdetect.cpp
-
-
 define BROWSER_PYSCRIPT
 import os, webbrowser, sys
 
@@ -76,14 +65,14 @@ remove-venv:
 	rm -rf .venv/
 
 lint: develop ## check style with prospector
-	$(BINDIR)/prospector $(PACKAGE)
-	$(BINDIR)/prospector tests
+	prospector $(PACKAGE)
+	prospector tests
 
-test: develop ## run tests quickly with the default Python
-	$(BINDIR)/python setup.py test
+test: clean develop ## run tests quickly with the default Python
+	python setup.py test
 
 test-all: develop ## run tests on every Python version with tox
-	$(BINDIR)/tox
+	tox
 
 coverage: develop ## check code coverage quickly with the default Python
 	$(BINDIR)/coverage run --source $(PACKAGE) setup.py test
@@ -105,19 +94,20 @@ servedocs: docs ## compile the docs watching for changes
 release: dist ## package and upload a release
 	$(BINDIR)/twine upload dist/*
 
-dist: binary clean ## builds source and wheel package
+dist: clean ## builds source and wheel package
 	pip install -r requirements_dev.txt
 	python setup.py sdist
 	python setup.py bdist_wheel
 	ls -l dist
 
-develop: binary
+develop:
 	( \
-	python -m venv $(VENVDIR); \
+	python3 -m venv $(VENVDIR); \
 	source $(VENVDIR)/bin/activate; \
 	pip install -r requirements_dev.txt; \
 	python setup.py develop; \
 	)
 
-install: binary clean ## install the package to the active Python's site-packages
+install: clean ## install the package to the active Python's site-packages
 	python setup.py install
+

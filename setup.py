@@ -13,54 +13,21 @@ with open('HISTORY.rst') as history_file:
 
 sources = ['py_vmdetect/src/vmdetect.cpp']
 libraries = []
-include_dirs = [ ]    # may be changed by pkg-config
+include_dirs = []  # may be changed by pkg-config
 define_macros = []
 library_dirs = []
-extra_compile_args = ['-fPIC']
+extra_compile_args = ['-fPIC',]
 extra_link_args = ['-shared']
 
 requirements = ['Click>=6.0',
                 'cffi>=1.12.3'
                 ]
 
-setup_requirements = [ ]
+setup_requirements = []
 
-test_requirements = [ ]
+test_requirements = []
 
 no_compiler_found = False
-def no_working_compiler_found():
-    sys.stderr.write("""
-    No working compiler found, or bogus compiler options passed to
-    the compiler from Python's standard "distutils" module.  See
-    the error messages above.  Likely, the problem is not related
-    to CFFI but generic to the setup.py of any Python package that
-    tries to compile C code.  (Hints: on OS/X 10.8, for errors about
-    -mno-fused-madd see http://stackoverflow.com/questions/22313407/
-    Otherwise, see https://wiki.python.org/moin/CompLangPython or
-    the IRC channel #python on irc.freenode.net.)
-
-    Trying to continue anyway.  If you are trying to install CFFI from
-    a build done in a different context, you can ignore this warning.
-    \n""")
-    global no_compiler_found
-    no_compiler_found = True
-
-def get_config():
-    from distutils.core import Distribution
-    from distutils.sysconfig import get_config_vars
-    get_config_vars()      # workaround for a bug of distutils, e.g. on OS/X
-    config = Distribution().get_command_obj('config')
-    return config
-
-def test_copiler():
-    config = get_config()
-    ok1 = config.try_compile('int some_regular_variable_42;')
-    if not ok1:
-        no_working_compiler_found()
-
-def _safe_to_ignore():
-    sys.stderr.write("***** The above error message can be safely ignored.\n\n")
-
 
 if 'freebsd' in sys.platform:
     include_dirs.append('/usr/local/include')
@@ -68,7 +35,9 @@ if 'freebsd' in sys.platform:
 
 if __name__ == '__main__':
     from setuptools import setup, Distribution, Extension, find_packages
-    test_copiler()
+
+    #test_copiler()
+    #cpython = ('_vmdetect_backend' not in sys.builtin_module_names)
 
 
     class VMDetectDistribution(Distribution):
@@ -78,6 +47,20 @@ if __name__ == '__main__':
             # specific.  (thanks dstufft!)
             return True
 
+
+    class VMDetectExtension(Extension):
+        def __init__(self, name, sources, *args, **kw):
+            if 'darwin' in sys.platform:
+                os.environ["CC"] = 'clang'
+                os.environ["CXX"] = 'clang++'
+                os.environ["CFLAGS"] = "-stdlib=libc++ -mmacosx-version-min=10.12 -fno-strict-aliasing -Wsign-compare -fno-common -dynamic " \
+                                       "-DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -arch x86_64 -g -fPIC"
+                os.environ["LDSHARED"] = "clang++ -stdlib=libc++ -undefined dynamic_lookup " \
+                                         "-mmacosx-version-min=10.12 " \
+                                         "-arch x86_64 -g -shared"
+            Extension.__init__(self, name, sources, *args, **kw)
+
+
     setup(
         author="Andres Kepler",
         author_email='andres@kepler.ee',
@@ -86,10 +69,10 @@ if __name__ == '__main__':
             'Intended Audience :: Developers',
             'License :: OSI Approved :: MIT License',
             'Natural Language :: English',
-            'Programming Language :: Python :: 2.7',
             'Programming Language :: Python :: 3.6',
             'Programming Language :: Python :: 3.7',
         ],
+        python_requires='>=3.6',
         description="Python virtual machine detection tool detects virtual environment - VMWare, XEN, FreeBSD jail etc",
         entry_points={
             'console_scripts': [
@@ -110,15 +93,17 @@ if __name__ == '__main__':
         version='0.1.4',
         zip_safe=False,
         distclass=VMDetectDistribution,
-        ext_modules=[Extension(
-                name='_vmdetect_backend',
-                include_dirs=include_dirs,
-                sources=sources,
-                libraries=libraries,
-                define_macros=define_macros,
-                library_dirs=library_dirs,
-                extra_compile_args=extra_compile_args,
-                extra_link_args=extra_link_args
-            )]
+        ext_modules=[VMDetectExtension(
+            name='_vmdetect_backend',
+            include_dirs=include_dirs,
+            sources=sources,
+            libraries=libraries,
+            define_macros=define_macros,
+            library_dirs=library_dirs,
+            extra_compile_args=extra_compile_args,
+            extra_link_args=extra_link_args,
+            language = 'c'
+        )],
+
 
     )
