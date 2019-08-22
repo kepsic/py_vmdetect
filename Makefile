@@ -14,11 +14,11 @@ BINDIR        = $(VENVDIR)/bin
 binary: vmdetect.so
 	python setup.py build_ext
 
-vmdetect.so: vmdetect.o
-	$(CC) $(CFLAGS) -shared -o ./$(PACKAGE)/vmdetect.so *.o
+vmdetect.so: _vmdetect_backend.o
+	$(CC) $(CFLAGS) -shared -o ./$(PACKAGE)/_vmdetect_backend.so *.o
 	find . -name '*.o' -exec rm -f {} +
 
-vmdetect.o: $(VMDETECTBASE)/vmdetect.cpp
+_vmdetect_backend.o: $(VMDETECTBASE)/vmdetect.cpp
 	$(CC) $(CFLAGS) -c $(VMDETECTBASE)/vmdetect.cpp
 
 

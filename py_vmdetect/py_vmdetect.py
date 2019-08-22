@@ -24,7 +24,7 @@ class VMDetect():
                   int detect_XEN_domU();\
                   int detectFreeBSDJAIL();\
                   ")
-        path_string = os.path.dirname(os.path.realpath(__file__)) + "/vmdetect.so"
+        path_string = os.path.dirname(os.path.realpath(__file__)) + "/_vmdetect_backend.so"
         if not os.path.isfile(path_string):
             path_string = importlib.util.find_spec('_vmdetect_backend').origin
         self.vmdetect  = ffi.dlopen(path_string)
