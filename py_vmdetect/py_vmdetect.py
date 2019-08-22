@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import importlib.util
 import os.path
 from cffi import FFI
 
@@ -24,6 +25,8 @@ class VMDetect():
                   int detectFreeBSDJAIL();\
                   ")
         path_string = os.path.dirname(os.path.realpath(__file__)) + "/vmdetect.so"
+        if not os.path.isfile(path_string):
+            path_string = importlib.util.find_spec('_vmdetect_backend').origin
         self.vmdetect  = ffi.dlopen(path_string)
 
     def vm_provider_id(self):
