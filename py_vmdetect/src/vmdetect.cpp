@@ -6,6 +6,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/sysctl.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
@@ -36,9 +37,14 @@ int _detectFreeBSDJAIL()
     int ret = 0;
 #ifdef __FreeBSD__
     struct stat st;
+    size_t len;
+    int jailed;
+    len = 4;
+    sysctlbyname("security.jail.jailed", &jailed, &len, NULL, 0);
+
     if (stat("/", &st) == 0)
     {
-        if (st.st_ino > 2)
+        if (st.st_ino > 2 || jailed == 1)
             return VM_FREEBSDJAIL;
     }
 #endif
