@@ -90,7 +90,7 @@ if __name__ == '__main__':
         test_suite='tests',
         tests_require=test_requirements,
         url='https://github.com/kepsic/py_vmdetect',
-        version='version='0.1.5'',
+        version='version='1.0.0'',
         zip_safe=False,
         distclass=VMDetectDistribution,
         ext_modules=[VMDetectExtension(
