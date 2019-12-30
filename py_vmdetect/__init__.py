@@ -4,5 +4,5 @@
 
 __author__ = """Andres Kepler"""
 __email__ = 'andres@kepler.ee'
-__version__ = '0.2.3'
+__version__ = '0.2.4'
 from .py_vmdetect import VMDetect  # noqa: F401
