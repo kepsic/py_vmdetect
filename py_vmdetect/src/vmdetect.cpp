@@ -1,4 +1,5 @@
 // This file origin is https://github.com/litespeedtech/lsmcd/blob/master/src/util/sysinfo/vmdetect.cpp
+
 #include <fcntl.h>
 #include <inttypes.h>
 #include <stdio.h>
@@ -10,14 +11,21 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#define VM_OPENVZ   1
-#define VM_XEN      2
-#define VM_VMWARE   3
-#define VM_KVM      4
-#define VM_HYPERV   5
-#define VM_USERMODELINUX   6
-#define VM_FREEBSDJAIL   7
-
+enum VM {
+    VM_NONE             = 0,
+    VM_OPENVZ           = 1,
+    VM_XEN              = 2,
+    VM_VMWARE           = 3,
+    VM_KVM              = 4,
+    VM_HYPERV           = 5,
+    VM_USERMODELINUX    = 6,
+    VM_FREEBSDJAIL      = 7,
+    VM_VPC              = 8,
+    VM_BHIVE            = 9,
+    VM_QEMU             = 10,
+    VM_LKVM             = 11,
+    VM_VMM              = 12
+};
 
 static int  readFile(char *pBuf, int bufLen, const char *pName,
                      const char *pBase)
@@ -93,16 +101,28 @@ static unsigned int getcpuid(unsigned int eax, char *sig)
 
 static int _get_vm_type_by_cpuid(const char *cpuid)
 {
-    if (strncmp("XenVMMXenVMM", cpuid, 12) == 0)
-        return VM_XEN;
-    else if (strncmp("VMwareVMware", cpuid, 12) == 0)
-        return VM_VMWARE;
-    else if (strncmp("KVMKVMKVM", cpuid, 9) == 0)
-        return VM_KVM;
-    else if (strncmp("Microsoft Hv", cpuid, 12) == 0)
-        return VM_HYPERV;
 
-    return 0;
+    static const struct Key {
+		enum VM id;
+		const char * sig;
+	} keys[] = {
+		{ VM_VMWARE,	"VMwareVMware"	},
+		{ VM_VPC,		"Microsoft Hv"	},
+		{ VM_BHIVE,	    "bhyve bhyve"	},
+		{ VM_XEN,		"XenVMMXenVMM"	},
+		{ VM_KVM,		"KVMKVMKVM"		},
+		{ VM_QEMU,		"TCGTCGTCGTCG"	},
+		{ VM_LKVM,		"LKVMLKVMLKVM"	},
+		{ VM_VMM,		"OpenBSDVMM58"	}
+	};
+
+	for(size_t ix = 0; ix < (sizeof(keys)/sizeof(keys[0])); ix++) {
+		if(!strncmp(cpuid,keys[ix].sig,strlen(keys[ix].sig))) {
+			return keys[ix].id;
+		}
+	}
+
+    return VM_NONE;
 }
 
 int _vm_by_cpuid() {
