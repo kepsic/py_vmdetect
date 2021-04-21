@@ -208,6 +208,12 @@ int _isVMware()
 
 int _isUserModeLinuxOrKvm()
 {
+    // First check by cpuid
+    if(_vm_by_cpuid() == VM_KVM) {
+        return VM_KVM;
+    }
+
+    // Then check /proc/cpuinfo
     int ret = 0;
 #if defined(linux) || defined(__linux) || defined(__linux__)
     char achBuf[4096];
