@@ -83,6 +83,13 @@ class TestPy_vmdetect(unittest.TestCase):
             vmd.isFreeBSDJAIL()
         mock_method.assert_called()
 
+    def test_010_isVMware(self):
+        """Test isVMware."""
+        with patch.object(VMDetect, 'isVMware', return_value=True) as mock_method:
+            vmd = VMDetect()
+            vmd.isVMware()
+        mock_method.assert_called()
+
     def test_command_line_interface(self):
         """Test the CLI."""
         runner = CliRunner()
