@@ -19,7 +19,13 @@ class VMDetect():
         5: "VM_HYPERV",
         6: "VM_USERMODELINUX",
         7: "VM_FREEBSDJAIL",
+        8: "VM_VPC",
+        9: "VM_BHIVE",
+        10: "VM_QEMU",
+        11: "VM_LKVM",
+        12: "VM_VMM"
     }
+
     def __init__(self):
         ffi = FFI()
         ffi.cdef("int vm_by_cpuid();\
@@ -44,7 +50,8 @@ class VMDetect():
         return r
 
     def is_vm(self):
-        return self.isVMware() or \
+        return self.vm_provider_id() != 0 or \
+               self.isVMware() or \
                self.isHyperV() or \
                self.isOpenVZ() or \
                self.isUserModeLinux() or \
