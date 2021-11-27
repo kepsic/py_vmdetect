@@ -7,7 +7,9 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#if defined(HAVE_SYS_SYSCTL_H) && !defined(__GLIBC__)
 #include <sys/sysctl.h>
+#endif
 #include <sys/wait.h>
 #include <unistd.h>
 
